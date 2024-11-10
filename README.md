@@ -1,1 +1,1 @@
-This project coded using Html + Javascript + Bootstrap + CSS
+This project done using Html + Javascript + Bootstrap + CSS
