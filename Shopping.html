@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Document</title>
+		<link rel="stylesheet" href="../node_modules/bootstrap-icons/font/bootstrap-icons.css">
+		<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
+		<script>
+			function LoadCategories()
+			{
+			   fetch('https://fakestoreapi.com/products/categories')
+			   .then(function(responce){
+			      return responce.json();
+			   })
+			   .then(function(data){
+			         data.unshift("all");
+				   for(var category of data)
+				   {
+				     var option = document.createElement("option");
+					 option.text=category.toUpperCase();
+					 option.value = category;
+					 
+					 document.getElementById("lstcategory").appendChild(option);
+				   }
+			   })
+			}
+			function LoadProducts(url)
+			{
+			  document.querySelector("main").innerHTML="";
+			   fetch(url)
+			   .then(function(responce){
+			      return responce.json();
+			   })
+			   .then(function(data){
+			        for(var product of data)
+					{
+					  var div = document.createElement("div");
+					  div.className="card m-2 p-2";
+					  div.style.width="180px";
+					  div.innerHTML = `
+					    <img src =${product.image} height="150" class="card-img-top">
+						 <div class="card-header" style="height:160px">
+					        <p>  ${product.title}</p>
+						</div>
+						 <div class="card-body">
+						   <dl>
+						     <dt>Price</dt>
+							  <dd>${product.price}</dd>
+							 <dt>Rating</dt>
+							  <dd>
+								  <span class="bi bi-star-fill text-success"></span>
+								  ${product.rating.rate} [${product.rating.count}]
+							  </dd>
+						   </dl>
+						 </div>
+						 <div class="card-footer">
+						   <button onclick="AddClick(${product.id})" class="btn btn-danger"><span class="bi bi-cart"  ></span>Add To cart</button>
+						 </div>
+					   `;
+					   document.querySelector("main").appendChild(div);
+					}
+			   })
+			}
+			
+			function onbodyLoad()
+			{
+			 LoadCategories();
+			 LoadProducts("https://fakestoreapi.com/products");
+			 GetCartItemsCount();
+			}
+			function CategoryChange()
+			{
+			  var categoryName = document.getElementById("lstcategory").value;
+              if(categoryName=="all")
+			  { 
+			    LoadProducts("https://fakestoreapi.com/products"); 
+			  }
+			  else{
+			   LoadProducts(`https://fakestoreapi.com/products/category/${categoryName}`);
+			  }
+            }
+			  var CartItems = [];
+			function GetCartItemsCount()
+			{
+			  document.getElementById("lblCount").innerHTML = CartItems.length;
+			}
+			
+			function AddClick(id)
+			{
+			  fetch(`https://fakestoreapi.com/products/${id}`)
+			  .then(function(responce){
+			     return responce.json();
+				})
+			  .then(function(data){
+				   CartItems.push(data);
+				   alert(`${data.title} \n Added to cart`);
+				   GetCartItemsCount();
+				})
+			}
+			
+			function LoadCartItems()
+			{
+			  document.querySelector("tbody").innerHTML="";
+			  for(var item of CartItems)
+			  {
+			  tr = document.createElement("tr");
+			tdTitle = document.createElement("td");
+			tdPrice = document.createElement("td");
+			tdPreview = document.createElement("td");
+			
+			tdTitle.innerHTML= item.title;
+			tdPrice.innerHTML=item.price;
+			tdPreview.innerHTML=`<img src = ${item.image} height="50" width="50">`;
+			
+			tr.appendChild(tdTitle);
+			tr.appendChild(tdPrice);
+			tr.appendChild(tdPreview);
+			
+			document.querySelector("tbody").appendChild(tr);
+			  }
+			}
+		</script>
+		
+	</head>
+	<body class="container-fluid" onload="onbodyLoad()">
+	<header class="bg-danger text-white text-center p-3"><h1><span class="bi bi-cart3"></span>Shopping Online</h1></header>
+	<section class="row mt-3">
+	   
+	<nav class="col-2 border border-1">
+		<div> 
+		  <label class="form-label">Select Catogies</label>
+		  <div>
+		  <select onchange="CategoryChange()" id="lstcategory"class="form-select">
+		 
+		 </select>
+		</div>
+		</div>
+	</nav>
+		 
+		<main class="col-8 d-flex flex-wrap overflow-auto" >
+		 
+		</main>
+		<aside class="col-2 border border-2">
+		   <button class="btn btn-danger w-100" onclick="LoadCartItems()"  data-bs-target="#cart" data-bs-toggle="modal">
+		    <span class= "bi bi-cart"></span>
+			[<span id="lblCount"></span>]
+			Your Cart Items
+		   </button>
+		   <div class="modal fade" id="cart">
+		    <div class="modal-dialog">
+			 <div class="modal-content">
+			 <div class="modal-header">
+			  <h2>Your Cart Items</h2>
+			   <button class="btn btn-close" data-bs-dismiss="modal"></button>
+			 </div>
+			 <div class="modal-body">
+			   <table class="table table-hover">
+			    <thead>
+				   <tr>
+				     <th>Title</th>
+					 <th>Price</th>
+					 <th>Preview</th>
+				   </tr>
+				</thead>
+				<tbody>
+				 <tr></tr>
+				</tbody>
+			   </table>
+			 </div>
+			 </div>
+		    </div>
+		   </div>
+		</aside>
+	
+	</section>
+		<script src="../node_modules/jquery/dist/jquery.js"></script>
+		<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+	</body>
+</html>
